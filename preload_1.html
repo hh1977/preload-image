@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>图片加载之无序加载</title>
+    <style>
+    .progress {
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        font-size: 2em;
+    }
+
+    .progress.complete {
+        display: none;
+    }
+
+    .container {
+        display: none;
+        text-align: center;
+        margin-top: 50px;
+    }
+
+    .container.active {
+        display: block;
+    }
+
+    .container div {
+        margin-top: 10px;
+    }
+
+    .btn {
+        display: inline-block;
+        height: 30px;
+        line-height: 30px;
+        border: 1px solid #fc6;
+        background: #fc6;
+        color: #333;
+        padding: 0 10px;
+        margin-right: 30px;
+    }
+    </style>
+</head>
+<body>
+    <div class="progress"></div>
+
+    <div class="container">
+        <img src="http://op2clp53n.bkt.clouddn.com/20161104122758_cap-hpi.jpg" alt="picture" width="800">
+
+        <div>
+            <a href="javascript: void(0);" class="btn" data-control="prev">上一页</a>
+            <a href="javascript: void(0);" class="btn" data-control="next">下一页</a>
+        </div>
+    </div>
+
+    <script>
+    // 所有的图片（要是网络太好，自己加图片吧）
+    const imgs = [
+        "http://op2clp53n.bkt.clouddn.com/20161104122758_cap-hpi.jpg",
+        "http://op2clp53n.bkt.clouddn.com/500414621%20%281%29.jpg",
+        "http://op2clp53n.bkt.clouddn.com/cover_bg.png",
+        "http://img.aotu.io/mamboer/post-aotu.jpg",
+        "http://misc.aotu.io/o2/img/books/books-cover.jpg",
+        "http://img.aotu.io/Yettyzyt/cover.png",
+        "http://img.aotu.io/wengeek/responsive-image.png",
+        "https://gw.alicdn.com/tfs/TB1_6wnRXXXXXbwXFXXXXXXXXXX-900-500.jpg",
+        "http://op2clp53n.bkt.clouddn.com/_138.jpg",
+        "http://op2clp53n.bkt.clouddn.com/0_ocs_fin_cov_1.jpg",
+        "http://op2clp53n.bkt.clouddn.com/2voyage.jpg",
+        "http://op2clp53n.bkt.clouddn.com/boa_illustrations_master_fb_1200x628-12.jpg",
+        "http://op2clp53n.bkt.clouddn.com/building_science_bulletin_cover_2__1x.jpg",
+        "http://op2clp53n.bkt.clouddn.com/building-science-bulletin-cover_1x.jpg",
+        "http://op2clp53n.bkt.clouddn.com/chemistry4_1x.png",
+        "http://op2clp53n.bkt.clouddn.com/first_colony_dribbble_copy.jpg"
+    ];
+    let len = imgs.length;
+    let currIndex = 0; // 当前图片索引
+
+    let oImg = document.getElementsByTagName('img')[0];
+    let oBtns = document.getElementsByClassName('btn'); // 按钮
+
+    // 换页
+    for (let i = 0; i < oBtns.length; i++) {
+        oBtns[i].onclick = function () {
+            let attr = this.getAttribute('data-control');
+
+            if (attr === 'prev') { // 上一页按钮
+                currIndex = Math.max(0, --currIndex);
+            } else {
+                currIndex = Math.min((len - 1), ++currIndex);
+            }
+
+            oImg.src = imgs[currIndex];
+        }
+    }
+
+    /**
+     * 遍历imgs数组，将所有图片加载出来
+     * 可以通过控制台查看网络请求，会发现所有图片均已加载
+     */
+    let oProgress = document.getElementsByClassName('progress')[0];
+    let oContainer = document.getElementsByClassName('container')[0];
+    let count = 0; // 用于百分比计算
+    for (let i = 0; i < len; i++) {
+        let imgObj = new Image(); // 创建图片对象
+        imgObj.src = imgs[i];
+
+        imgObj.addEventListener('load', function () {
+            console.log(this);
+            let progress = (count + 1) / len * 100 + '%';
+            oProgress.innerHTML = progress;
+            count++;
+
+            if (count > len - 1) { // 加载完成
+                oProgress.className += ' complete';
+                oContainer.className += ' active';
+            }
+        }, false);
+    }
+    </script>
+</body>
+</html>
