@@ -2,19 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>图片加载之无序加载</title>
+    <title>图片加载之有序加载</title>
     <style>
-    .progress {
-        width: 100%;
-        height: 100%;
-        text-align: center;
-        font-size: 2em;
-    }
-
-    .progress.complete {
-        display: none;
-    }
-
     .container {
         display: none;
         text-align: center;
@@ -42,8 +31,6 @@
     </style>
 </head>
 <body>
-    <div class="progress"></div>
-
     <div class="container">
         <img src="http://op2clp53n.bkt.clouddn.com/20161104122758_cap-hpi.jpg" alt="picture" width="800">
 
@@ -53,6 +40,7 @@
         </div>
     </div>
 
+    <script src="js/jquery.min.js"></script>
     <script>
     // 所有的图片（要是网络太好，自己加图片吧）
     const imgs = [
@@ -98,24 +86,23 @@
      * 遍历imgs数组，将所有图片加载出来
      * 可以通过控制台查看网络请求，会发现所有图片均已加载
      */
-    let oProgress = document.getElementsByClassName('progress')[0];
-    let oContainer = document.getElementsByClassName('container')[0];
-    let count = 0; // 用于百分比计算
-    for (let i = 0; i < len; i++) {
-        let imgObj = new Image(); // 创建图片对象
-        imgObj.src = imgs[i];
+    let count = 0;
+    load();
+    function load() {
+        var imgObj = new Image();
+        imgObj.src = imgs[count];
 
-        imgObj.addEventListener('load', function () {
-            console.log(this);
-            let progress = (count + 1) / len * 100 + '%';
-            oProgress.innerHTML = progress;
-            count++;
-
-            if (count > len - 1) { // 加载完成
-                oProgress.className += ' complete';
-                oContainer.className += ' active';
+        $(imgObj).on('load error', function () {
+            console.log(count);
+            if (count >= len) {
+                console.log('加载完毕');
+                $('.container').addClass('active');
+            } else {
+                load(); // 继续加载下一张
             }
-        }, false);
+
+            count++;
+        });
     }
     </script>
 </body>

@@ -7,16 +7,48 @@
         this.opts = $.extend({}, Preload.DEFAULTS, options); // 用options覆盖默认值，然后生成一个新对象
 
         // 调用加载方法
-        this._unorderedload(); // 无序加载
+        if (this.opts.order === 'ordered') {
+            this._orderedLoad();
+        } else {
+            this._unorderedLoad(); // 无序加载
+        }
     }
 
     // Preload默认值
     Preload.DEFAULTS = {
+        order: 'unorder', // 默认无序加载
         each: null, // 接收一个方法，每一张图片加载完成后调用该函数
-        completed: null // 接收一个方法，所有图片加载完成后调用该函数
+        all: null // 接收一个方法，所有图片加载完成后调用该函数
     };
 
-    Preload.prototype._unorderedload = function () {
+    // 有序加载
+    Preload.prototype._orderedLoad = function () {
+        var imgs = this.imgs;
+        var opts = this.opts;
+        var count = 0;
+        var len = imgs.length;
+
+        function load() {
+            var imgObj = new Image();
+            imgObj.src = imgs[count];
+
+            $(imgObj).on('load error', function () {
+                if (count >= len) {
+                    opts.all && opts.all(); // 全部加载完毕
+                } else {
+                    opts.each && opts.each(count); // 将当前正在加载的图片索引传递出去
+                    load();
+                }
+
+                count++;
+            })
+        }
+
+        load();
+    }
+
+    // 无序加载
+    Preload.prototype._unorderedLoad = function () {
         var imgs = this.imgs;
         var opts = this.opts;
         var count = 0; // 计数器
@@ -35,7 +67,7 @@
                 opts.each && opts.each(count); // 首先判断each属性是否存在，存在则执行
 
                 if (count >= len -1) {
-                    opts.completed && opts.completed(); // 同理，不过是在图片加载完成之后调用
+                    opts.all && opts.all(); // 同理，不过是在图片加载完成之后调用
                 }
 
                 count++;
